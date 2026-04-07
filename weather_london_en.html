@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="3600">
+    <title>London - Partly Cloudy</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 18px;
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .weather-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .weather-icon {
+            width: 150px;
+            height: 150px;
+        }
+        
+        .weather-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .thermometer {
+            width: 150px;
+            height: 280px;
+        }
+        
+        .thermometer svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .temperature-main {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .temp-value {
+            font-size: 4em;
+            font-weight: bold;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .condition {
+            font-size: 1.5em;
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        .details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .detail-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .detail-value {
+            font-size: 1.2em;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .timestamp {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        /* Panel de controles */
+        .controls-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .controls-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        
+        .controls-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .controls-content {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            min-width: 280px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+        
+        .controls-content h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.2em;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 0.5rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.9em;
+        }
+        
+        .control-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        .control-group select:hover {
+            border-color: #4682B4;
+        }
+        
+        .control-group select:focus {
+            outline: none;
+            border-color: #4682B4;
+            box-shadow: 0 0 0 3px rgba(70, 130, 180, 0.1);
+        }
+        
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .temp-value {
+                font-size: 3em;
+            }
+            
+            .weather-icon,
+            .thermometer {
+                width: 120px;
+                height: auto;
+            }
+            
+            .details {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-panel {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .controls-content {
+                right: -10px;
+                min-width: 250px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>London</h1>
+        </header>
+        <main>
+            <div class="weather-display">
+                <div class="weather-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="35" cy="35" r="15" fill="#FFD700"/>
+            <line x1="35" y1="10" x2="35" y2="20" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            <line x1="10" y1="35" x2="20" y2="35" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            <line x1="15" y1="15" x2="23" y2="23" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            <line x1="55" y1="15" x2="47" y2="23" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="60" cy="65" rx="25" ry="18" fill="#FFFFFF" stroke="#B0C4DE" stroke-width="2"/>
+            <ellipse cx="45" cy="70" rx="20" ry="15" fill="#FFFFFF" stroke="#B0C4DE" stroke-width="2"/>
+            <ellipse cx="75" cy="70" rx="20" ry="15" fill="#FFFFFF" stroke="#B0C4DE" stroke-width="2"/>
+        </svg>
+                </div>
+                <div class="thermometer">
+                    <svg viewBox="0 0 150 280" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bulbo del termómetro -->
+            <circle cx="50" cy="245" r="25" fill="#DC143C" stroke="#8B0000" stroke-width="2"/>
+            
+            <!-- Tubo del termómetro -->
+            <rect x="35" y="20" width="30" height="200" rx="15" fill="#FFFFFF" stroke="#8B4513" stroke-width="3"/>
+            
+            <!-- Mercurio en el tubo -->
+            <rect x="40" y="88.75" width="20" height="131.25" fill="#DC143C"/>
+            
+            <!-- Conexión bulbo-tubo -->
+            <rect x="40" y="220" width="20" height="25" fill="#DC143C"/>
+            
+            <!-- Marcas de escala -->
+            <line x1="45" y1="220.0" x2="55" y2="220.0" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="225.0" font-size="10" fill="#8B4513">-22°F</text>
+            <line x1="45" y1="206.11111111111111" x2="55" y2="206.11111111111111" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="211.11111111111111" font-size="10" fill="#8B4513">-12°F</text>
+            <line x1="45" y1="192.22222222222223" x2="55" y2="192.22222222222223" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="197.22222222222223" font-size="10" fill="#8B4513">-2°F</text>
+            <line x1="45" y1="178.33333333333331" x2="55" y2="178.33333333333331" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="183.33333333333331" font-size="10" fill="#8B4513">8°F</text>
+            <line x1="45" y1="164.44444444444446" x2="55" y2="164.44444444444446" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="169.44444444444446" font-size="10" fill="#8B4513">18°F</text>
+            <line x1="45" y1="150.55555555555554" x2="55" y2="150.55555555555554" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="155.55555555555554" font-size="10" fill="#8B4513">28°F</text>
+            <line x1="45" y1="136.66666666666666" x2="55" y2="136.66666666666666" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="141.66666666666666" font-size="10" fill="#8B4513">38°F</text>
+            <line x1="45" y1="122.77777777777779" x2="55" y2="122.77777777777779" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="127.77777777777779" font-size="10" fill="#8B4513">48°F</text>
+            <line x1="45" y1="108.88888888888889" x2="55" y2="108.88888888888889" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="113.88888888888889" font-size="10" fill="#8B4513">58°F</text>
+            <line x1="45" y1="95.0" x2="55" y2="95.0" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="100.0" font-size="10" fill="#8B4513">68°F</text>
+            <line x1="45" y1="81.11111111111111" x2="55" y2="81.11111111111111" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="86.11111111111111" font-size="10" fill="#8B4513">78°F</text>
+            <line x1="45" y1="67.22222222222223" x2="55" y2="67.22222222222223" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="72.22222222222223" font-size="10" fill="#8B4513">88°F</text>
+            <line x1="45" y1="53.333333333333314" x2="55" y2="53.333333333333314" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="58.333333333333314" font-size="10" fill="#8B4513">98°F</text>
+            <line x1="45" y1="39.44444444444443" x2="55" y2="39.44444444444443" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="44.44444444444443" font-size="10" fill="#8B4513">108°F</text>
+            <line x1="45" y1="25.55555555555557" x2="55" y2="25.55555555555557" stroke="#8B4513" stroke-width="2"/>
+            <text x="65" y="30.55555555555557" font-size="10" fill="#8B4513">118°F</text>
+            
+            <!-- Decoración vintage -->
+            <circle cx="50" cy="245" r="28" fill="none" stroke="#8B4513" stroke-width="2"/>
+            <path d="M 35 20 Q 30 15 35 10" stroke="#8B4513" stroke-width="2" fill="none"/>
+            <path d="M 65 20 Q 70 15 65 10" stroke="#8B4513" stroke-width="2" fill="none"/>
+            
+            <!-- Temperatura actual -->
+            <text x="50" y="270" font-size="14" font-weight="bold" fill="#8B4513" text-anchor="middle">72.5°F</text>
+        </svg>
+                </div>
+            </div>
+            <div class="temperature-main">
+                <span class="temp-value">72.5°F</span>
+                <span class="condition">Partly Cloudy</span>
+            </div>
+            <div class="details">
+                <div class="detail-item">
+                    <span class="detail-label">Feels like:</span>
+                    <span class="detail-value">75.2°F</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Humidity:</span>
+                    <span class="detail-value">65%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Wind Speed:</span>
+                    <span class="detail-value">5.2 m/s</span>
+                </div><div class="detail-item"><span class="detail-label">Visibility:</span><span class="detail-value">10.0 km</span></div><div class="detail-item"><span class="detail-label">UV Index:</span><span class="detail-value">6.5</span></div>
+            </div>
+        </main>
+        <footer>
+            <p class="timestamp">Updated: April 07, 2026 at 10:47 AM</p>
+        </footer>
+    </div>
+    
+    <div class="controls-panel">
+        <button class="controls-toggle" onclick="toggleControls()">⚙️</button>
+        <div class="controls-content" id="controlsContent">
+            <h3>Settings / Configuración</h3>
+            
+            <div class="control-group">
+                <label>Language / Idioma:</label>
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en" selected>English</option>
+                    <option value="es" >Español</option>
+                    <option value="fr" >Français</option>
+                    <option value="it" >Italiano</option>
+                    <option value="de" >Deutsch</option>
+                    <option value="zh" >中文</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Temperature / Temperatura:</label>
+                <select id="tempUnitSelect" onchange="changeTempUnit()">
+                    <option value="celsius" >Celsius (°C)</option>
+                    <option value="fahrenheit" selected>Fahrenheit (°F)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Font Size / Tamaño:</label>
+                <select id="fontSizeSelect" onchange="changeFontSize()">
+                    <option value="xs" >Extra Small / Muy pequeño</option>
+                    <option value="s" >Small / Pequeño</option>
+                    <option value="m" >Medium / Mediano</option>
+                    <option value="l" selected>Large / Grande</option>
+                    <option value="xl" >Extra Large / Muy grande</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const weatherData = {
+            temperature: 22.5,
+            feels_like: 24.0,
+            condition: "parcialmente_nublado",
+            condition_description: "Parcialmente nublado con sol",
+            humidity: 65,
+            wind_speed: 5.2,
+            visibility: 10000,
+            uv_index: 6.5
+        };
+        
+        const city = "London";
+        
+        function toggleControls() {
+            const content = document.getElementById('controlsContent');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            localStorage.setItem('language', lang);
+            alert('Language change requires page regeneration. Please run the program again with --language ' + lang);
+        }
+        
+        function changeTempUnit() {
+            const unit = document.getElementById('tempUnitSelect').value;
+            localStorage.setItem('tempUnit', unit);
+            const tempCelsius = weatherData.temperature;
+            const feelsLikeCelsius = weatherData.feels_like;
+            let tempDisplay, feelsLikeDisplay, symbol;
+            if (unit === 'fahrenheit') {
+                tempDisplay = (tempCelsius * 9/5) + 32;
+                feelsLikeDisplay = (feelsLikeCelsius * 9/5) + 32;
+                symbol = '°F';
+            } else {
+                tempDisplay = tempCelsius;
+                feelsLikeDisplay = feelsLikeCelsius;
+                symbol = '°C';
+            }
+            document.querySelector('.temp-value').textContent = tempDisplay.toFixed(1) + symbol;
+            const detailValues = document.querySelectorAll('.detail-value');
+            if (detailValues[0]) {
+                detailValues[0].textContent = feelsLikeDisplay.toFixed(1) + symbol;
+            }
+        }
+        
+        function changeFontSize() {
+            const size = document.getElementById('fontSizeSelect').value;
+            const sizes = {
+                'xs': '12px',
+                's': '14px',
+                'm': '16px',
+                'l': '18px',
+                'xl': '22px'
+            };
+            localStorage.setItem('fontSize', size);
+            document.body.style.fontSize = sizes[size];
+        }
+        
+        window.onload = function() {
+            const savedLang = localStorage.getItem('language');
+            const savedUnit = localStorage.getItem('tempUnit');
+            const savedSize = localStorage.getItem('fontSize');
+            if (savedLang) {
+                document.getElementById('languageSelect').value = savedLang;
+            }
+            if (savedUnit) {
+                document.getElementById('tempUnitSelect').value = savedUnit;
+                changeTempUnit();
+            }
+            if (savedSize) {
+                document.getElementById('fontSizeSelect').value = savedSize;
+                changeFontSize();
+            }
+        };
+    </script>
+</body>
+</html>
